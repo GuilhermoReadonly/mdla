@@ -9,9 +9,10 @@ use actix_web::{
     web::{scope, Json},
     App, HttpResponse, HttpServer, Responder,
 };
+use chrono::{Utc, TimeZone};
 use env_logger::Env;
 use log::info;
-use rand::{prelude::IteratorRandom, thread_rng};
+use rand::{prelude::{IteratorRandom, StdRng}, SeedableRng};
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize)]
@@ -38,16 +39,19 @@ struct GuessBody {
 async fn guess(guess_body: Json<GuessBody>) -> impl Responder {
     info!("Body : {guess_body:?}");
 
-    let mut rng = thread_rng();
+    // The goal here is to get a number that change everyday in order to initialise the seed of the random number generator.
+    let days_since_y0 = (Utc::now() - Utc.ymd(1, 1, 1).and_hms(0, 0, 0)).num_days();
+    info!("Seed init to: {days_since_y0}");
+    let mut rng: StdRng = SeedableRng::seed_from_u64(days_since_y0.unsigned_abs());
 
-    let file = File::open("./word_list").expect("Can't open file...");
+    let file = File::open("./word_list").expect("Open file...");
     let reader = BufReader::new(file);
 
     let word = reader
         .lines()
         .choose(&mut rng)
-        .expect("Can't choose a word...")
-        .expect("Can't read lines...");
+        .expect("Choose a word...")
+        .expect("Read lines...");
 
     info!("Today word is : {word:?}");
     let word: Vec<char> = word.chars().collect();
@@ -64,7 +68,7 @@ async fn guess(guess_body: Json<GuessBody>) -> impl Responder {
         validation_list.push(validation);
     }
 
-    let body = serde_json::to_string(&GuessResponse { validation_list }).expect("Can't serialize");
+    let body = serde_json::to_string(&GuessResponse { validation_list }).expect("Serialize");
 
     // Create response and set content type
     HttpResponse::Ok()
