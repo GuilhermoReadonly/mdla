@@ -7,7 +7,7 @@ use actix_web::{
     get,
     middleware::Logger,
     post,
-    web::{scope, Json},
+    web::{scope, Data, Json},
     App, HttpServer, Result,
 };
 use chrono::{TimeZone, Utc};
@@ -18,6 +18,10 @@ use rand::{
     SeedableRng,
 };
 use serde::{Deserialize, Serialize};
+
+use crate::errors::AppError;
+
+mod errors;
 
 #[derive(Debug, Serialize)]
 struct GuessResponse {
@@ -45,34 +49,55 @@ struct GuessBody {
     guess: String,
 }
 
-fn get_today_word() -> String {
+struct AppState {
+    word_list: Vec<String>,
+}
+
+fn get_today_word(words: &[String]) -> String {
     // The goal here is to get a number that change everyday in order to initialise the seed of the random number generator.
     let days_since_y0 = (Utc::now() - Utc.ymd(1, 1, 1).and_hms(0, 0, 0)).num_days();
     info!("Seed init to: {days_since_y0}");
 
     let mut rng: StdRng = SeedableRng::seed_from_u64(days_since_y0.unsigned_abs());
 
-    let file = File::open("./word_list").expect("Open file...");
-    let word = BufReader::new(file)
-        .lines()
+    let word = words
+        .iter()
         .choose(&mut rng)
         .expect("Choose a word...")
-        .expect("Read lines...");
+        .clone();
 
     info!("Today word is : {word:?}");
     word
 }
 
+fn get_words() -> Vec<String> {
+    let file = File::open("./word_list").expect("Open file...");
+
+    BufReader::new(file)
+        .lines()
+        .map(|l| l.unwrap_or_else(|_| panic!("{}", "Read line".to_string())))
+        .collect()
+}
+
 #[post("/guess")]
-async fn guess(guess_body: Json<GuessBody>) -> Result<Json<GuessResponse>> {
+async fn guess(data: Data<AppState>, guess_body: Json<GuessBody>) -> Result<Json<GuessResponse>> {
     info!("Body : {guess_body:?}");
 
-    let word: Vec<char> = get_today_word().chars().collect();
+    let word: Vec<char> = get_today_word(&data.word_list).chars().collect();
+
+    if word.len() != guess_body.guess.len() {
+        return Err(AppError::BadWordLength(word.len()).into());
+    }
 
     let mut validation_list = vec![];
 
     for (i, c) in guess_body.guess.chars().enumerate() {
-        let validation = match (&c == word.get(i).expect(&format!("Index {i} exist for word {word:?}")), word.contains(&c)) {
+        let validation = match (
+            &c == word
+                .get(i)
+                .unwrap_or_else(|| panic!("Index {i} exist for word {word:?}")),
+            word.contains(&c),
+        ) {
             (true, _) => Validation::Correct,
             (false, true) => Validation::Present,
             (false, false) => Validation::NotInWord,
@@ -86,8 +111,8 @@ async fn guess(guess_body: Json<GuessBody>) -> Result<Json<GuessResponse>> {
 }
 
 #[get("/hints")]
-async fn hints() -> Result<Json<HintsResponse>> {
-    let word: Vec<char> = get_today_word().chars().collect();
+async fn hints(data: Data<AppState>) -> Result<Json<HintsResponse>> {
+    let word: Vec<char> = get_today_word(&data.word_list).chars().collect();
 
     let response = HintsResponse {
         first_letter: word[0],
@@ -102,6 +127,9 @@ async fn main() -> std::io::Result<()> {
 
     HttpServer::new(|| {
         App::new()
+            .data(AppState {
+                word_list: get_words(),
+            })
             .wrap(Logger::default())
             .service(scope("/api").service(guess).service(hints))
     })
