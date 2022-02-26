@@ -931,6 +931,19 @@ dependencies = [
 ]
 
 [[package]]
+name = "marmot"
+version = "0.1.0"
+dependencies = [
+ "actix-web",
+ "chrono",
+ "env_logger",
+ "log",
+ "rand 0.8.5",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
 name = "match_cfg"
 version = "0.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1004,19 +1017,6 @@ dependencies = [
  "net2",
  "winapi 0.2.8",
  "ws2_32-sys",
-]
-
-[[package]]
-name = "motmot"
-version = "0.1.0"
-dependencies = [
- "actix-web",
- "chrono",
- "env_logger",
- "log",
- "rand 0.8.5",
- "serde",
- "serde_json",
 ]
 
 [[package]]

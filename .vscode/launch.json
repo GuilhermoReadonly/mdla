@@ -7,15 +7,15 @@
         {
             "type": "lldb",
             "request": "launch",
-            "name": "Debug executable 'motmot'",
+            "name": "Debug executable 'marmot'",
             "cargo": {
                 "args": [
                     "build",
-                    "--bin=motmot",
-                    "--package=motmot"
+                    "--bin=marmot",
+                    "--package=marmot"
                 ],
                 "filter": {
-                    "name": "motmot",
+                    "name": "marmot",
                     "kind": "bin"
                 }
             },
@@ -26,16 +26,16 @@
         {
             "type": "lldb",
             "request": "launch",
-            "name": "Debug unit tests in executable 'motmot'",
+            "name": "Debug unit tests in executable 'marmot'",
             "cargo": {
                 "args": [
                     "test",
                     "--no-run",
-                    "--bin=motmot",
-                    "--package=motmot"
+                    "--bin=marmot",
+                    "--package=marmot"
                 ],
                 "filter": {
-                    "name": "motmot",
+                    "name": "marmot",
                     "kind": "bin"
                 }
             },
