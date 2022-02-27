@@ -11,8 +11,7 @@
             "cargo": {
                 "args": [
                     "build",
-                    "--bin=marmot",
-                    "--package=marmot"
+                    "--bin=marmot"
                 ],
                 "filter": {
                     "name": "marmot",

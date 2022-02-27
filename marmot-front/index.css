@@ -1,0 +1,72 @@
+:root {
+  --color-custom-dark: rgb(31, 31, 31);
+  --color-custom-light: #dddddd;
+}
+
+body {
+  color: var(--color-custom-dark);
+}
+
+table {
+  border: 1px solid var(--color-custom-dark);
+  border-collapse: collapse;
+  caption-side: top;
+}
+
+th,
+td {
+  width: 25%;
+  text-align: left;
+  vertical-align: top;
+  border: 1px solid var(--color-custom-dark);
+  padding: 0.3em;
+}
+
+caption {
+  padding: 0.3em;
+  color: var(--color-custom-light);
+  background: var(--color-custom-dark);
+}
+
+.header {
+  grid-area: header;
+}
+.content {
+  grid-area: content;
+}
+
+.grid-container {
+  display: grid;
+  grid-template-areas:
+    "header header header"
+    ". content .";
+  grid-template-columns: 5em auto 5em;
+  gap: 1em;
+}
+
+/* Style the top navigation bar */
+.topnav {
+  overflow: hidden;
+  background-color: var(--color-custom-dark);
+}
+
+/* Style the topnav links */
+.topnav a {
+  float: left;
+  display: block;
+  color: var(--color-custom-light);
+  text-align: center;
+  padding: 14px 16px;
+  text-decoration: none;
+}
+
+/* Style the login link */
+.topnav .login-elt {
+  float: right;
+}
+
+/* Change color on hover */
+.topnav a:hover {
+  background-color: var(--color-custom-light);
+  color: var(--color-custom-dark);
+}

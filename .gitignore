@@ -1,1 +1,2 @@
-/target
+**/target/
+/marmot-front/dist/
