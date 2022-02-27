@@ -40,15 +40,18 @@ pub async fn guess(
 ) -> Result<Json<GuessResponse>> {
     info!("Body : {guess_body:?}");
 
-    let word: Vec<char> = get_today_word(&data.word_list).chars().collect();
+    let word: Vec<char> = get_today_word(&data.word_list).to_uppercase().chars().collect();
 
     if word.len() != guess_body.guess.len() {
         return Err(AppError::BadWordLength(word.len()).into());
     }
+    if !data.word_list.contains(&guess_body.guess){
+        return Err(AppError::WordNotInDictionary(guess_body.guess.clone()).into());
+    }
 
     let mut validation_list = vec![];
 
-    for (i, c) in guess_body.guess.chars().enumerate() {
+    for (i, c) in guess_body.guess.to_uppercase().chars().enumerate() {
         let validation = match (
             &c == word
                 .get(i)
