@@ -11,6 +11,7 @@ use serde::{Deserialize, Serialize};
 use wasm_bindgen::JsCast;
 use wasm_bindgen::JsValue;
 use wasm_bindgen_futures::JsFuture;
+use web_sys::Headers;
 use web_sys::{Request, RequestInit, Response};
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -32,7 +33,7 @@ impl From<JsValue> for FetchError {
     }
 }
 
-pub async fn _request<A: Serialize, B: for<'a> Deserialize<'a>>(
+pub async fn request<A: Serialize, B: for<'a> Deserialize<'a>>(
     verb: &str,
     url: &str,
     body: Option<A>,
@@ -47,8 +48,11 @@ pub async fn _request<A: Serialize, B: for<'a> Deserialize<'a>>(
         let js_string = serde_json::to_string(&body).unwrap();
         let js_value = JsValue::from_serde(&js_string).unwrap();
         opts.body(Some(&js_value));
-    }
 
+        let headers = Headers::new().expect("Get header");
+        headers.append("Content-Type", "application/json")?;
+        opts.headers(&headers);
+    }
     let request = Request::new_with_str_and_init(url, &opts)?;
 
     let window = web_sys::window().expect("no window available");

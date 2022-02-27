@@ -1,10 +1,10 @@
-use crate::components::page_home::HomePageComponent;
+use crate::components::page_game::GamePageComponent;
 
 use log::info;
 use yew::prelude::*;
 use yew_router::prelude::*;
 
-mod page_home;
+mod page_game;
 
 #[derive(Routable, Debug, Clone, PartialEq)]
 pub enum AppRoute {
@@ -35,7 +35,7 @@ impl Component for MainComponent {
                         <Switch<AppRoute> render={Switch::render(move |routes: &AppRoute| {
                             info!("Route: {:?}", routes);
                             match routes.clone() {
-                                AppRoute::Index => html!{<HomePageComponent/>},
+                                AppRoute::Index => html!{<GamePageComponent/>},
                             }
                         })} />
                     </div>

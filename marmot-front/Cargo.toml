@@ -13,11 +13,8 @@ path = "src/main.rs"
 wasm-bindgen = {version="0.2.78", features = ["serde-serialize"]}
 wasm-bindgen-futures = {version="0.4.28"}
 
-rand = "0.8"
-getrandom = { version = "0.2", features = ["js"] }
 log = "0.4"
 wasm-logger = "0.2"
-jsonwebtoken = "8"
 
 yew = "0.19"
 yew-router = "0.16"

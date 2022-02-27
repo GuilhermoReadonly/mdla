@@ -1,18 +1,18 @@
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Serialize)]
-pub struct GuessResponse {
-    pub validation_list: Vec<Validation>,
-    pub guess: String,
-}
-
-#[derive(Debug, Serialize)]
+#[derive(Debug, Deserialize)]
 pub struct HintsResponse {
     pub number_of_letters: usize,
     pub first_letter: char,
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Deserialize)]
+pub struct GuessResponse {
+    pub validation_list: Vec<Validation>,
+    pub guess: String,
+}
+
+#[derive(Debug, Deserialize)]
 pub enum Validation {
     #[serde(rename = "□")]
     Correct,
@@ -22,11 +22,7 @@ pub enum Validation {
     NotInWord,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Serialize)]
 pub struct GuessBody {
     pub guess: String,
-}
-
-pub struct AppState {
-    pub word_list: Vec<String>,
 }

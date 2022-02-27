@@ -48,7 +48,7 @@ pub async fn guess(
     if word.len() != guess_body.guess.len() {
         return Err(AppError::BadWordLength(word.len()).into());
     }
-    if !data.word_list.contains(&guess_body.guess) {
+    if !data.word_list.contains(&guess_body.guess.to_uppercase()) {
         return Err(AppError::WordNotInDictionary(guess_body.guess.clone()).into());
     }
 
@@ -69,7 +69,10 @@ pub async fn guess(
         validation_list.push(validation);
     }
 
-    let response = GuessResponse { validation_list };
+    let response = GuessResponse {
+        validation_list,
+        guess: guess_body.guess.to_uppercase(),
+    };
     Ok(Json(response))
 }
 
