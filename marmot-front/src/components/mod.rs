@@ -4,6 +4,8 @@ use log::info;
 use yew::prelude::*;
 use yew_router::prelude::*;
 
+mod guess;
+mod history;
 mod page_game;
 
 #[derive(Routable, Debug, Clone, PartialEq)]

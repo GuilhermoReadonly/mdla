@@ -4,6 +4,7 @@ use web_sys::HtmlInputElement;
 use yew::prelude::*;
 
 use crate::{
+    components::history::HistoryComponent,
     model::{GuessBody, GuessResponse, HintsResponse},
     network::request,
 };
@@ -42,28 +43,30 @@ impl Component for GamePageComponent {
     }
 
     fn view(&self, ctx: &Context<Self>) -> Html {
-        html! {
-            <>
-                <h1>{"Marmot"}</h1>
-                <p>{format!("Hints: {:?}", &self.hints)}</p>
-
-                <p>{format!("Past guesses: {:?}", &self.past_guesses)}</p>
-
-                <p>{"Guess: "}
-                    <input
-                    type="text"
-                    value=""
-                    required=true
-                    onchange={ctx.link().callback(move |e: Event| {
-                        let input: HtmlInputElement = e.target_unchecked_into();
-                        let value = input.value();
-                        Msg::UpdateGuess(value)
-                    })}/>
-                    <button onclick={ctx.link().callback(move|_| {
-                        Msg::PostGuess
-                    })}>{"Sauvegarder"}</button>
-                </p>
-            </>
+        if let Some(hints) = &self.hints {
+            html! {
+                <>
+                    <h1>{"Marmot"}</h1>
+                    <p>{format!("Mot de {} lettres commençant par {}", hints.number_of_letters, hints.first_letter)}</p>
+                    <HistoryComponent past_guesses={self.past_guesses.clone()} />
+                    <p>
+                        <input
+                        type="text"
+                        value=""
+                        required=true
+                        onchange={ctx.link().callback(move |e: Event| {
+                            let input: HtmlInputElement = e.target_unchecked_into();
+                            let value = input.value();
+                            Msg::UpdateGuess(value)
+                        })}/>
+                        <button onclick={ctx.link().callback(move|_| {
+                            Msg::PostGuess
+                        })}>{"Envoyer"}</button>
+                    </p>
+                </>
+            }
+        } else {
+            html! {}
         }
     }
 
