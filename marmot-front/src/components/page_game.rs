@@ -4,7 +4,7 @@ use web_sys::HtmlInputElement;
 use yew::prelude::*;
 
 use crate::{
-    components::history::HistoryComponent,
+    components::grid::GridComponent,
     model::{GuessBody, GuessResponse, HintsResponse},
     network::request,
 };
@@ -46,9 +46,9 @@ impl Component for GamePageComponent {
         if let Some(hints) = &self.hints {
             html! {
                 <>
-                    <h1>{"Marmot"}</h1>
+                    <h1>{"MDLA"}</h1>
                     <p>{format!("Mot de {} lettres commençant par {}", hints.number_of_letters, hints.first_letter)}</p>
-                    <HistoryComponent past_guesses={self.past_guesses.clone()} />
+                    <GridComponent length={6} width={hints.number_of_letters} past_guesses={self.past_guesses.clone()} />
                     <p>
                         <input
                         type="text"

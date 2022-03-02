@@ -3,7 +3,6 @@ use serde::{Deserialize, Serialize};
 #[derive(Debug, Serialize)]
 pub struct GuessResponse {
     pub validation_list: Vec<Validation>,
-    pub guess: String,
 }
 
 #[derive(Debug, Serialize)]
@@ -14,12 +13,9 @@ pub struct HintsResponse {
 
 #[derive(Debug, Serialize)]
 pub enum Validation {
-    #[serde(rename = "□")]
-    Correct,
-    #[serde(rename = "◯")]
-    Present,
-    #[serde(rename = "X")]
-    NotInWord,
+    Correct(char),
+    Present(char),
+    NotInWord(char),
 }
 
 #[derive(Debug, Deserialize)]

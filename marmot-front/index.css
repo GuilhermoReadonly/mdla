@@ -1,0 +1,64 @@
+:root {
+  --color-1: #ffffff;
+  --color-2: #e7002a;
+  --color-3: #ffbd00;
+  --color-4: #0077c7;
+  --color-5: #303030;
+  --cell-size: 48px;
+  --width-cell-border: 1px;
+  --width-padding-cell: 2px;
+  --color-correct: var(--color-2);
+  --color-present: var(--color-3);
+  --color-not-in-word: var(--color-4);
+  --color-back-grid: var(--color-4);
+  --color-back: var(--color-5);
+  --color-border: var(--color-1);
+  --color-border-grid: var(--color-1);
+  --color-police: var(--color-1);
+  --color-police-grid: var(--color-1);
+  --size-icone: 32px;
+}
+
+body {
+  font-family: "Roboto Medium", Ubuntu, Arial, Helvetica, sans-serif;
+  font-size: 32px;
+  background-color: var(--color-back);
+  height: 100vh;
+  text-align: center;
+  color: var(--color-police);
+  margin: 0;
+  padding: 0;
+}
+
+.grid {
+  margin-left: auto;
+  margin-right: auto;
+  background-color: var(--color-back-grid);
+  min-height: calc(6 * var(--cell-size) + 12 * var(--width-cell-border));
+  border-spacing: 0;
+  background-color: var(--color-back-grid);
+}
+
+.grid td {
+  width: calc(var(--cell-size) - 2 * var(--width-padding-cell));
+  height: calc(var(--cell-size) - 2 * var(--width-padding-cell));
+  text-align: center;
+  position: relative;
+  padding: var(--width-padding-cell);
+  color: var(--color-police-grid);
+  border: 1px solid var(--color-border-grid);
+  z-index: 0;
+}
+
+.grid td.present {
+  background-color: var(--color-present);
+  border-radius: 50%;
+}
+
+.grid td.correct {
+  background-color: var(--color-correct);
+}
+
+.grid td.not-in-word {
+  background-color: var(--color-not-in-word);
+}

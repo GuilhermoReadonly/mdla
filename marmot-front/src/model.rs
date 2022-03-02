@@ -6,20 +6,16 @@ pub struct HintsResponse {
     pub first_letter: char,
 }
 
-#[derive(Debug, Deserialize, Clone)]
+#[derive(Debug, Deserialize, Clone, PartialEq)]
 pub struct GuessResponse {
     pub validation_list: Vec<Validation>,
-    pub guess: String,
 }
 
 #[derive(Debug, Deserialize, Clone, PartialEq)]
 pub enum Validation {
-    #[serde(rename = "□")]
-    Correct,
-    #[serde(rename = "◯")]
-    Present,
-    #[serde(rename = "X")]
-    NotInWord,
+    Correct(char),
+    Present(char),
+    NotInWord(char),
 }
 
 #[derive(Debug, Serialize)]

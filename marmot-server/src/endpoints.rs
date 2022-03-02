@@ -61,18 +61,15 @@ pub async fn guess(
                 .unwrap_or_else(|| panic!("Index {i} exist for word {word:?}")),
             word.contains(&c),
         ) {
-            (true, _) => Validation::Correct,
-            (false, true) => Validation::Present,
-            (false, false) => Validation::NotInWord,
+            (true, _) => Validation::Correct(c),
+            (false, true) => Validation::Present(c),
+            (false, false) => Validation::NotInWord(c),
         };
 
         validation_list.push(validation);
     }
 
-    let response = GuessResponse {
-        validation_list,
-        guess: guess_body.guess.to_uppercase(),
-    };
+    let response = GuessResponse { validation_list };
     Ok(Json(response))
 }
 
