@@ -802,7 +802,13 @@ dependencies = [
 ]
 
 [[package]]
-name = "marmot"
+name = "matches"
+version = "0.1.9"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a3e378b66a060d48947b590737b30a1be76706c8dd7b8ba0f2fe3989c68a853f"
+
+[[package]]
+name = "mdla"
 version = "0.1.0"
 dependencies = [
  "actix-web",
@@ -815,7 +821,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "marmot-front"
+name = "mdla-front"
 version = "0.1.0"
 dependencies = [
  "log",
@@ -828,12 +834,6 @@ dependencies = [
  "yew",
  "yew-router",
 ]
-
-[[package]]
-name = "matches"
-version = "0.1.9"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a3e378b66a060d48947b590737b30a1be76706c8dd7b8ba0f2fe3989c68a853f"
 
 [[package]]
 name = "memchr"

@@ -1,11 +1,11 @@
 [package]
-name = "marmot-front"
+name = "mdla-front"
 version = "0.1.0"
 authors = []
 edition = "2021"
 
 [[bin]]
-name = "marmot-front"
+name = "mdla-front"
 path = "src/main.rs"
 
 [dependencies]

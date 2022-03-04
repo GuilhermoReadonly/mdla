@@ -1,2 +1,2 @@
 [workspace]
-members = ["marmot-server", "marmot-front"]
+members = ["mdla-server", "mdla-front"]

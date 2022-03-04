@@ -7,14 +7,14 @@
         {
             "type": "lldb",
             "request": "launch",
-            "name": "Debug executable 'marmot'",
+            "name": "Debug executable 'mdla'",
             "cargo": {
                 "args": [
                     "build",
-                    "--bin=marmot"
+                    "--bin=mdla"
                 ],
                 "filter": {
-                    "name": "marmot",
+                    "name": "mdla",
                     "kind": "bin"
                 }
             },
@@ -25,16 +25,16 @@
         {
             "type": "lldb",
             "request": "launch",
-            "name": "Debug unit tests in executable 'marmot'",
+            "name": "Debug unit tests in executable 'mdla'",
             "cargo": {
                 "args": [
                     "test",
                     "--no-run",
-                    "--bin=marmot",
-                    "--package=marmot"
+                    "--bin=mdla",
+                    "--package=mdla"
                 ],
                 "filter": {
-                    "name": "marmot",
+                    "name": "mdla",
                     "kind": "bin"
                 }
             },
