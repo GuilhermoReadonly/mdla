@@ -1,22 +1,30 @@
 use std::fmt::{Debug, Display};
 
-use actix_web::{error, http::header, http::StatusCode, HttpResponse, HttpResponseBuilder};
+use actix_web::{error, http::StatusCode, HttpResponse, HttpResponseBuilder};
 use serde::Serialize;
 
 #[derive(Debug, Serialize)]
-pub(crate) enum AppError {
-    BadWordLength(usize),
+pub enum AppError {
+    BadWordLength {
+        size_expected: usize,
+        size_received: usize,
+        word_sent: String,
+    },
     WordNotInDictionary(String),
 }
 
 impl Display for AppError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match &*self {
-            AppError::BadWordLength(i) => {
-                write!(f, "{{\"error\": \"Word should be {} letters\"}}", i)
+            AppError::BadWordLength {
+                size_expected,
+                size_received,
+                word_sent,
+            } => {
+                write!(f, "Word should be {size_expected} letters but received {size_received} : {word_sent}")
             }
             AppError::WordNotInDictionary(w) => {
-                write!(f, "{{\"error\": \"Word {} is not in our dictionary\"}}", w)
+                write!(f, "Word {w} is not in our dictionary")
             }
         }
     }
@@ -24,14 +32,16 @@ impl Display for AppError {
 
 impl error::ResponseError for AppError {
     fn error_response(&self) -> HttpResponse {
-        HttpResponseBuilder::new(self.status_code())
-            .insert_header(header::ContentType::json())
-            .body(self.to_string())
+        HttpResponseBuilder::new(self.status_code()).json(self)
     }
 
     fn status_code(&self) -> StatusCode {
-        match *self {
-            AppError::BadWordLength(_) => StatusCode::BAD_REQUEST,
+        match self {
+            AppError::BadWordLength {
+                size_expected: _,
+                size_received: _,
+                word_sent: _,
+            } => StatusCode::BAD_REQUEST,
             AppError::WordNotInDictionary(_) => StatusCode::BAD_REQUEST,
         }
     }

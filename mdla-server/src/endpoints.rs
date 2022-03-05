@@ -5,7 +5,7 @@ use actix_web::{
 };
 use chrono::{TimeZone, Utc};
 
-use log::info;
+use log::{info, warn};
 use rand::{
     prelude::{IteratorRandom, StdRng},
     SeedableRng,
@@ -46,10 +46,18 @@ pub async fn guess(
         .collect();
 
     if word.len() != guess_body.guess.len() {
-        return Err(AppError::BadWordLength(word.len()).into());
+        let error = AppError::BadWordLength {
+            size_expected: word.len(),
+            size_received: guess_body.guess.len(),
+            word_sent: guess_body.guess.clone(),
+        };
+        warn!("{error}");
+        return Err(error.into());
     }
     if !data.word_list.contains(&guess_body.guess.to_uppercase()) {
-        return Err(AppError::WordNotInDictionary(guess_body.guess.clone()).into());
+        let error = AppError::WordNotInDictionary(guess_body.guess.clone());
+        warn!("{error}");
+        return Err(error.into());
     }
 
     let mut validation_list = vec![];
