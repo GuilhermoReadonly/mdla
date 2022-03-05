@@ -1,7 +1,6 @@
 use crate::components::MainComponent;
 
 mod components;
-mod model;
 mod network;
 
 fn main() {

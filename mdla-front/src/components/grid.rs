@@ -1,4 +1,4 @@
-use crate::model::{GuessResponse, Validation};
+use mdla_lib::model::{GuessResponse, Validation};
 use yew::prelude::*;
 
 /// Grid

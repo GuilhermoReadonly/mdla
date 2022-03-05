@@ -12,12 +12,10 @@ use actix_web::{
 use endpoints::{guess, hints};
 use env_logger::Env;
 use log::info;
-
-use crate::model::AppState;
+use mdla_lib::model::AppState;
 
 mod endpoints;
 mod errors;
-mod model;
 
 fn get_words() -> Vec<String> {
     let file = File::open("./word_list").expect("Open file...");

@@ -3,7 +3,7 @@
 ## Quick start:
 
 ### Start Server
-> cargo run --bin=mdla
+> cargo run --bin=mdla-server
 
 ### Start front
 > trunk serve ./mdla-front/index.html --proxy-backend http://localhost:8000/api/

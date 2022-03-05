@@ -11,10 +11,9 @@ use rand::{
     SeedableRng,
 };
 
-use crate::{
-    errors::AppError,
-    model::{AppState, GuessBody, GuessResponse, HintsResponse, Validation},
-};
+use crate::errors::AppError;
+
+use mdla_lib::model::{AppState, GuessBody, GuessResponse, HintsResponse, Validation};
 
 fn get_today_word(words: &[String]) -> String {
     // The goal here is to get a number that change everyday in order to initialise the seed of the random number generator.

@@ -1,13 +1,10 @@
 use log::error;
+use mdla_lib::model::{GuessBody, GuessResponse, HintsResponse};
 use std::error::Error;
 use web_sys::HtmlInputElement;
 use yew::prelude::*;
 
-use crate::{
-    components::grid::GridComponent,
-    model::{GuessBody, GuessResponse, HintsResponse},
-    network::request,
-};
+use crate::{components::grid::GridComponent, network::request};
 
 #[derive(Debug)]
 pub enum Msg {

@@ -1,2 +1,2 @@
 [workspace]
-members = ["mdla-server", "mdla-front"]
+members = ["mdla-server", "mdla-front", "mdla-lib"]

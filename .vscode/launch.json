@@ -7,14 +7,14 @@
         {
             "type": "lldb",
             "request": "launch",
-            "name": "Debug executable 'mdla'",
+            "name": "Debug executable 'mdla-server'",
             "cargo": {
                 "args": [
                     "build",
-                    "--bin=mdla"
+                    "--bin=mdla-server"
                 ],
                 "filter": {
-                    "name": "mdla",
+                    "name": "mdla-server",
                     "kind": "bin"
                 }
             },
@@ -25,16 +25,16 @@
         {
             "type": "lldb",
             "request": "launch",
-            "name": "Debug unit tests in executable 'mdla'",
+            "name": "Debug unit tests in executable 'mdla-server'",
             "cargo": {
                 "args": [
                     "test",
                     "--no-run",
-                    "--bin=mdla",
-                    "--package=mdla"
+                    "--bin=mdla-server",
+                    "--package=mdla-server"
                 ],
                 "filter": {
-                    "name": "mdla",
+                    "name": "mdla-server",
                     "kind": "bin"
                 }
             },
