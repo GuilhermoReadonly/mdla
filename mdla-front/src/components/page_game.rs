@@ -4,7 +4,10 @@ use std::error::Error;
 use web_sys::HtmlInputElement;
 use yew::prelude::*;
 
-use crate::{components::grid::GridComponent, network::request};
+use crate::{
+    components::{grid::GridComponent, message_box::MessageBox},
+    network::request,
+};
 
 #[derive(Debug)]
 pub enum Msg {
@@ -60,6 +63,7 @@ impl Component for GamePageComponent {
                             Msg::PostGuess
                         })}>{"Envoyer"}</button>
                     </p>
+                    <MessageBox />
                 </>
             }
         } else {

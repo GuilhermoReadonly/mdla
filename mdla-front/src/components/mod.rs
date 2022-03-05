@@ -5,6 +5,7 @@ use yew::prelude::*;
 use yew_router::prelude::*;
 
 mod grid;
+mod message_box;
 mod page_game;
 
 #[derive(Routable, Debug, Clone, PartialEq)]
