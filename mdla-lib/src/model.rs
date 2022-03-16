@@ -1,5 +1,15 @@
 use serde::{Deserialize, Serialize};
 
+#[derive(Debug, Serialize, Deserialize)]
+pub enum AppError {
+    BadWordLength {
+        size_expected: usize,
+        size_received: usize,
+        word_sent: String,
+    },
+    WordNotInDictionary(String),
+}
+
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 pub struct GuessResponse {
     pub validation_list: Vec<Validation>,
