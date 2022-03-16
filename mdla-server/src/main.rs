@@ -17,17 +17,17 @@ use mdla_lib::model::AppState;
 mod endpoints;
 mod errors;
 
-fn get_words() -> Vec<String> {
-    let file_words_all = File::open("./word_list_all.db").expect("Open file...");
+fn get_words(file: &str) -> Vec<String> {
+    let file_words = File::open(file).expect("Open words file...");
 
-    let words: Vec<String> = BufReader::new(file_words_all)
+    let words: Vec<String> = BufReader::new(file_words)
         .lines()
         .enumerate()
         .map(|(i, line)| line.unwrap_or_else(|e| panic!("Read line {i}: {e}")))
         .collect();
 
     let nb_words = words.len();
-    info!("{nb_words} words loaded !");
+    info!("{nb_words} words loaded from file {file}");
 
     words
 }
@@ -39,7 +39,8 @@ async fn main() -> std::io::Result<()> {
     HttpServer::new(|| {
         App::new()
             .app_data(Data::new(AppState {
-                word_list: get_words(),
+                all_word_list: get_words("./word_list_all.db"),
+                playable_word_list: get_words("./word_list_playable.db"),
             }))
             .wrap(Logger::default())
             .service(scope("/api").service(guess).service(hints))

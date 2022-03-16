@@ -34,5 +34,6 @@ pub struct GuessBody {
 }
 
 pub struct AppState {
-    pub word_list: Vec<String>,
+    pub all_word_list: Vec<String>,
+    pub playable_word_list: Vec<String>,
 }

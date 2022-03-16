@@ -39,7 +39,7 @@ pub async fn guess(
 ) -> Result<Json<GuessResponse>> {
     info!("Body : {guess_body:?}");
 
-    let word: Vec<char> = get_today_word(&data.word_list)
+    let word: Vec<char> = get_today_word(&data.playable_word_list)
         .to_uppercase()
         .chars()
         .collect();
@@ -53,7 +53,10 @@ pub async fn guess(
         warn!("{error}");
         return Err(error.into());
     }
-    if !data.word_list.contains(&guess_body.guess.to_uppercase()) {
+    if !data
+        .all_word_list
+        .contains(&guess_body.guess.to_uppercase())
+    {
         let error = AppError::WordNotInDictionary(guess_body.guess.clone());
         warn!("{error}");
         return Err(error.into());
@@ -82,7 +85,7 @@ pub async fn guess(
 
 #[get("/hints")]
 pub async fn hints(data: Data<AppState>) -> Result<Json<HintsResponse>> {
-    let word: Vec<char> = get_today_word(&data.word_list).chars().collect();
+    let word: Vec<char> = get_today_word(&data.playable_word_list).chars().collect();
 
     let response = HintsResponse {
         first_letter: word[0],
