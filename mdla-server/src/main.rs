@@ -18,9 +18,9 @@ mod endpoints;
 mod errors;
 
 fn get_words() -> Vec<String> {
-    let file = File::open("./word_list").expect("Open file...");
+    let file_words_all = File::open("./word_list_all.db").expect("Open file...");
 
-    let words: Vec<String> = BufReader::new(file)
+    let words: Vec<String> = BufReader::new(file_words_all)
         .lines()
         .enumerate()
         .map(|(i, line)| line.unwrap_or_else(|e| panic!("Read line {i}: {e}")))
