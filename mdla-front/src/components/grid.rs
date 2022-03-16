@@ -1,4 +1,5 @@
 use mdla_lib::model::{GuessResponse, Validation};
+use stylist::{css, YieldStyle, StyleSource};
 use yew::prelude::*;
 
 /// Grid
@@ -12,6 +13,43 @@ pub struct GridProperties {
     pub past_guesses: Vec<GuessResponse>,
     pub length: usize,
     pub width: usize,
+}
+
+impl YieldStyle for GridComponent {
+    fn style_from(&self) -> StyleSource<'static> {
+        css!("
+            margin-left: auto;
+            margin-right: auto;
+            background-color: var(--color-back-grid);
+            min-height: calc(6 * var(--cell-size) + 12 * var(--width-cell-border));
+            border-spacing: 0;
+            background-color: var(--color-back-grid);
+
+            td {
+                width: calc(var(--cell-size) - 2 * var(--width-padding-cell));
+                height: calc(var(--cell-size) - 2 * var(--width-padding-cell));
+                text-align: center;
+                position: relative;
+                padding: var(--width-padding-cell);
+                color: var(--color-police-grid);
+                border: 1px solid var(--color-border-grid);
+                z-index: 0;
+            }
+
+            td.present {
+                background-color: var(--color-present);
+                border-radius: 50%;
+            }
+            
+            td.correct {
+                background-color: var(--color-correct);
+            }
+            
+            td.not-in-word {
+                background-color: var(--color-not-in-word);
+            }
+        ")
+    }
 }
 
 impl Component for GridComponent {
@@ -29,8 +67,12 @@ impl Component for GridComponent {
     fn view(&self, ctx: &Context<Self>) -> Html {
         let lines = 0..ctx.props().length;
         let width = ctx.props().width;
+
+        // let toto = include_str!("grid.css");
+        // let style = Style::new(toto).unwrap();
+
         html! {
-            <table class="grid">{
+            <table class={self.style()}>{
                 lines.into_iter().map(|i| {
                     let guess = ctx.props().past_guesses.get(i).cloned();
 
