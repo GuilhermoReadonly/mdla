@@ -21,7 +21,8 @@ def sanitize(lines: List[str]) -> List[str]:
     for (i, w) in enumerate(lines):
 
         if (
-            ("α" in w)
+            ("-" in w)
+            or ("α" in w)
             or ("β" in w)
             or ("γ" in w)
             or ("δ" in w)
