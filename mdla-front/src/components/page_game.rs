@@ -1,5 +1,5 @@
-use log::error;
-use mdla_lib::model::{GuessBody, GuessResponse, HintsResponse};
+use log::{error, warn};
+use mdla_lib::model::{GuessBody, GuessResponse, GuessResponseOrError, HintsResponse};
 use std::error::Error;
 use web_sys::HtmlInputElement;
 use yew::prelude::*;
@@ -15,7 +15,7 @@ pub enum Msg {
     GetHintsResponse(Result<HintsResponse, Box<dyn Error>>),
     UpdateGuess(String),
     PostGuess,
-    PostGuessResponse(Result<GuessResponse, Box<dyn Error>>),
+    PostGuessResponse(Result<GuessResponseOrError, Box<dyn Error>>),
 }
 
 #[derive(Debug)]
@@ -88,10 +88,8 @@ impl Component for GamePageComponent {
                     self.hints = Some(hints);
                 }
                 Err(e) => {
-                    log::error!("Something terrible happened...: {:?}", e);
+                    error!("Something terrible happened...: {:?}", e);
                     self.hints = None;
-
-                    error!("Can't fetch hints: {e}");
                 }
             },
             Msg::UpdateGuess(guess) => {
@@ -99,8 +97,9 @@ impl Component for GamePageComponent {
             }
             Msg::PostGuess => {
                 let current_guess = self.current_guess.clone();
+
                 ctx.link().send_future(async move {
-                    match request::<GuessBody, GuessResponse>(
+                    match request::<GuessBody, GuessResponseOrError>(
                         "POST",
                         "/api/guess",
                         Some(GuessBody {
@@ -116,12 +115,15 @@ impl Component for GamePageComponent {
             }
             Msg::PostGuessResponse(response) => {
                 match response {
-                    Ok(guess_response) => {
+                    Ok(GuessResponseOrError::Response(guess_response)) => {
                         self.past_guesses.push(guess_response);
                     }
+                    Ok(GuessResponseOrError::Error(app_error)) => {
+                        warn!("Bad request...: {:?}", app_error);
+                        //TODO: display error message on screen
+                    }
                     Err(e) => {
-                        log::error!("Something terrible happened...: {:?}", e);
-                        error!("Can't post guess: {e}");
+                        error!("Something terrible happened...: {:?}", e);
                     }
                 }
                 self.current_guess = String::new();

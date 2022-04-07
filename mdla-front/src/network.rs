@@ -61,10 +61,9 @@ pub async fn request<A: Serialize, B: for<'a> Deserialize<'a>>(
 
     let js_value = JsFuture::from(resp.json()?).await?;
     let data = js_value.into_serde().map_err(|e| {
-        error!("Fetch error: {e}");
-        FetchError {
-            err: Some(format!("Can't parse response: {:?}", e)),
-        }
+        let msg = format!("Can't parse response: {:?}", e);
+        error!("{msg}");
+        FetchError { err: Some(msg) }
     })?;
     Ok(data)
 }

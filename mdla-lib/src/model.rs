@@ -16,6 +16,12 @@ pub struct GuessResponse {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
+pub enum GuessResponseOrError {
+    Response(GuessResponse),
+    Error(AppError),
+}
+
+#[derive(Debug, Serialize, Deserialize)]
 pub struct HintsResponse {
     pub number_of_letters: usize,
     pub first_letter: char,

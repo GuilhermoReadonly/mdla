@@ -11,9 +11,9 @@ use rand::{
     SeedableRng,
 };
 
-use crate::errors::AppError;
+use mdla_lib::model::{AppError, AppState, GuessBody, GuessResponse, HintsResponse, Validation};
 
-use mdla_lib::model::{AppState, GuessBody, GuessResponse, HintsResponse, Validation};
+use crate::errors::ResponseOrError;
 
 fn get_today_word(words: &[String]) -> String {
     // The goal here is to get a number that change everyday in order to initialise the seed of the random number generator.
@@ -36,7 +36,7 @@ fn get_today_word(words: &[String]) -> String {
 pub async fn guess(
     data: Data<AppState>,
     guess_body: Json<GuessBody>,
-) -> Result<Json<GuessResponse>> {
+) -> Result<Json<ResponseOrError<GuessResponse>>> {
     info!("Body : {guess_body:?}");
 
     let word: Vec<char> = get_today_word(&data.playable_word_list)
@@ -50,16 +50,16 @@ pub async fn guess(
             size_received: guess_body.guess.len(),
             word_sent: guess_body.guess.clone(),
         };
-        warn!("{error}");
-        return Err(error.into());
+        warn!("{error:?}");
+        return Err(ResponseOrError::<GuessResponse>::Error(error).into());
     }
     if !data
         .all_word_list
         .contains(&guess_body.guess.to_uppercase())
     {
         let error = AppError::WordNotInDictionary(guess_body.guess.clone());
-        warn!("{error}");
-        return Err(error.into());
+        warn!("{error:?}");
+        return Err(ResponseOrError::<GuessResponse>::Error(error).into());
     }
 
     let mut validation_list = vec![];
@@ -80,7 +80,7 @@ pub async fn guess(
     }
 
     let response = GuessResponse { validation_list };
-    Ok(Json(response))
+    Ok(Json(ResponseOrError::Response(response)))
 }
 
 #[get("/hints")]
