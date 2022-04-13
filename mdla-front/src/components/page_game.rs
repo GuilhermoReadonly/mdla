@@ -17,6 +17,7 @@ pub struct Message {
 
 #[derive(Debug, PartialEq, Clone)]
 pub enum Severity {
+    Info,
     Warn,
     Error,
 }
@@ -110,6 +111,8 @@ impl Component for GamePageComponent {
                 self.current_guess = guess;
             }
             Msg::PostGuess => {
+                self.message = None;
+
                 let current_guess = self.current_guess.clone();
 
                 ctx.link().send_future(async move {
@@ -130,6 +133,18 @@ impl Component for GamePageComponent {
             Msg::PostGuessResponse(response) => {
                 match response {
                     Ok(GuessResponseOrError::Response(guess_response)) => {
+                        let correct_guess = guess_response
+                            .clone()
+                            .validation_list
+                            .into_iter()
+                            .all(|v| v.is_correct());
+                        if correct_guess {
+                            self.message = Some(Message {
+                                severity: Severity::Info,
+                                text: format!("Bravo ! \\o/"),
+                            })
+                        }
+
                         self.past_guesses.push(guess_response);
                     }
                     Ok(GuessResponseOrError::Error(app_error)) => {

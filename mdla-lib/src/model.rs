@@ -34,6 +34,15 @@ pub enum Validation {
     NotInWord(char),
 }
 
+impl Validation {
+    pub fn is_correct(self) -> bool {
+        match self {
+            Validation::Correct(_) => true,
+            _ => false,
+        }
+    }
+}
+
 #[derive(Debug, Serialize, Deserialize)]
 pub struct GuessBody {
     pub guess: String,
