@@ -1,5 +1,5 @@
 use log::{error, warn};
-use mdla_lib::model::{GuessBody, GuessResponse, GuessResponseOrError, HintsResponse};
+use mdla_lib::model::{AppError, GuessBody, GuessResponse, GuessResponseOrError, HintsResponse};
 use std::error::Error;
 use web_sys::HtmlInputElement;
 use yew::prelude::*;
@@ -8,6 +8,18 @@ use crate::{
     components::{grid::GridComponent, message_box::MessageBox},
     network::request,
 };
+
+#[derive(Debug, PartialEq, Clone)]
+pub struct Message {
+    pub text: String,
+    pub severity: Severity,
+}
+
+#[derive(Debug, PartialEq, Clone)]
+pub enum Severity {
+    Warn,
+    Error,
+}
 
 #[derive(Debug)]
 pub enum Msg {
@@ -23,6 +35,7 @@ pub struct GamePageComponent {
     hints: Option<HintsResponse>,
     past_guesses: Vec<GuessResponse>,
     current_guess: String,
+    message: Option<Message>,
 }
 
 impl Component for GamePageComponent {
@@ -35,6 +48,7 @@ impl Component for GamePageComponent {
             hints: None,
             past_guesses: vec![],
             current_guess: String::new(),
+            message: None,
         }
     }
 
@@ -63,7 +77,7 @@ impl Component for GamePageComponent {
                             Msg::PostGuess
                         })}>{"Envoyer"}</button>
                     </p>
-                    <MessageBox />
+                    <MessageBox message={self.message.clone()} />
                 </>
             }
         } else {
@@ -120,10 +134,22 @@ impl Component for GamePageComponent {
                     }
                     Ok(GuessResponseOrError::Error(app_error)) => {
                         warn!("Bad request...: {:?}", app_error);
-                        //TODO: display error message on screen
+                        match app_error{
+                            AppError::WordNotInDictionary(w) => {
+                                self.message = Some(Message{severity:Severity::Warn, text:format!("Word {w} is not in our dictionary")})
+                            }
+                            AppError::BadWordLength { size_expected: se, size_received: sr, word_sent: w } => {
+                                self.message = Some(Message{severity:Severity::Warn, text:format!("Word {w} has a size of {sr} but the word to guess should be of size {se}")})
+                            }
+                        }
                     }
                     Err(e) => {
-                        error!("Something terrible happened...: {:?}", e);
+                        let msg = format!("Something terrible happened...: {:?}", e);
+                        error!("{msg}");
+                        self.message = Some(Message {
+                            severity: Severity::Error,
+                            text: format!("{msg}"),
+                        })
                     }
                 }
                 self.current_guess = String::new();

@@ -1,40 +1,35 @@
 use yew::prelude::*;
 
-#[derive(Debug)]
-pub enum Msg {}
+use super::page_game::Message;
 
-#[derive(Debug)]
-pub struct Message {
-    text: String,
-    severity: String,
+#[derive(Debug, Properties, PartialEq)]
+pub struct MessageBoxProperties {
+    pub message: Option<Message>,
 }
 
 #[derive(Debug)]
-pub struct MessageBox {
-    message: Option<Message>,
-}
+pub struct MessageBox;
 
 impl Component for MessageBox {
-    type Message = Msg;
-    type Properties = ();
+    type Message = ();
+    type Properties = MessageBoxProperties;
 
     fn create(_ctx: &Context<Self>) -> Self {
-        Self { message: None }
+        Self
     }
 
     fn changed(&mut self, _ctx: &Context<Self>) -> bool {
-        false
+        true
     }
 
-    fn view(&self, _ctx: &Context<Self>) -> Html {
-        match &self.message {
+    fn view(&self, ctx: &Context<Self>) -> Html {
+        match &ctx.props().message {
             None => html!(),
-            Some(m) => html!(<>{&m.severity} {":"} {&m.text}</>),
+            Some(m) => html!(<>{&m.text}</>),
         }
     }
 
-    fn update(&mut self, _ctx: &Context<Self>, msg: Self::Message) -> bool {
-        log::info!("Message received: {:?}", msg);
-        true
+    fn update(&mut self, _ctx: &Context<Self>, _msg: ()) -> bool {
+        false
     }
 }
