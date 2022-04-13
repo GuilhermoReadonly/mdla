@@ -44,20 +44,20 @@ pub async fn guess(
         .chars()
         .collect();
 
+    if !data
+        .all_word_list
+        .contains(&guess_body.guess.to_uppercase())
+    {
+        let error = AppError::WordNotInDictionary(guess_body.guess.clone());
+        warn!("{error:?}");
+        return Err(ResponseOrError::<GuessResponse>::Error(error).into());
+    }
     if word.len() != guess_body.guess.len() {
         let error = AppError::BadWordLength {
             size_expected: word.len(),
             size_received: guess_body.guess.len(),
             word_sent: guess_body.guess.clone(),
         };
-        warn!("{error:?}");
-        return Err(ResponseOrError::<GuessResponse>::Error(error).into());
-    }
-    if !data
-        .all_word_list
-        .contains(&guess_body.guess.to_uppercase())
-    {
-        let error = AppError::WordNotInDictionary(guess_body.guess.clone());
         warn!("{error:?}");
         return Err(ResponseOrError::<GuessResponse>::Error(error).into());
     }
