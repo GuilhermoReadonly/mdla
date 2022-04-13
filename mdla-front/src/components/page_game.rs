@@ -151,19 +151,18 @@ impl Component for GamePageComponent {
                         warn!("Bad request...: {:?}", app_error);
                         match app_error{
                             AppError::WordNotInDictionary(w) => {
-                                self.message = Some(Message{severity:Severity::Warn, text:format!("Word {w} is not in our dictionary")})
+                                self.message = Some(Message{severity:Severity::Warn, text:format!("Le mot {w} n'est pas dans notre dictionnaire.")})
                             }
                             AppError::BadWordLength { size_expected: se, size_received: sr, word_sent: w } => {
-                                self.message = Some(Message{severity:Severity::Warn, text:format!("Word {w} has a size of {sr} but the word to guess should be of size {se}")})
+                                self.message = Some(Message{severity:Severity::Warn, text:format!("Le mot {w} a {sr} lettres mais le mot a deviner doit en avoir {se}.")})
                             }
                         }
                     }
                     Err(e) => {
-                        let msg = format!("Something terrible happened...: {:?}", e);
-                        error!("{msg}");
+                        error!("Something terrible happened...: {:?}", e);
                         self.message = Some(Message {
                             severity: Severity::Error,
-                            text: format!("{msg}"),
+                            text: format!("Quelque chose cloche : {:?}", e),
                         })
                     }
                 }
