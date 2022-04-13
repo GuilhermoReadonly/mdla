@@ -1,5 +1,7 @@
 use log::{error, warn};
-use mdla_lib::model::{AppError, GuessBody, GuessResponse, GuessResponseOrError, HintsResponse};
+use mdla_lib::model::{
+    AppError, GuessBody, GuessResponse, GuessResponseOrError, HintsResponse, Validation,
+};
 use std::error::Error;
 use web_sys::HtmlInputElement;
 use yew::prelude::*;
@@ -137,11 +139,11 @@ impl Component for GamePageComponent {
                             .clone()
                             .validation_list
                             .into_iter()
-                            .all(|v| v.is_correct());
+                            .all(|v| matches!(v, Validation::Correct(_)));
                         if correct_guess {
                             self.message = Some(Message {
                                 severity: Severity::Info,
-                                text: format!("Bravo ! \\o/"),
+                                text: "Bravo ! \\o/".to_string(),
                             })
                         }
 
