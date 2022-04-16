@@ -44,19 +44,19 @@ pub async fn guess(
         .chars()
         .collect();
 
-    if !data
-        .all_word_list
-        .contains(&guess_body.guess.to_uppercase())
-    {
-        let error = AppError::WordNotInDictionary(guess_body.guess.clone());
+    let guess = guess_body.guess.to_uppercase();
+    let guess_vec: Vec<char> = guess.chars().collect();
+
+    if !data.all_word_list.contains(&guess) && guess_vec != word {
+        let error = AppError::WordNotInDictionary(guess);
         warn!("{error:?}");
         return Err(ResponseOrError::<GuessResponse>::Error(error).into());
     }
-    if word.len() != guess_body.guess.len() {
+    if word.len() != guess.len() {
         let error = AppError::BadWordLength {
             size_expected: word.len(),
-            size_received: guess_body.guess.len(),
-            word_sent: guess_body.guess.clone(),
+            size_received: guess.len(),
+            word_sent: guess,
         };
         warn!("{error:?}");
         return Err(ResponseOrError::<GuessResponse>::Error(error).into());
@@ -64,7 +64,7 @@ pub async fn guess(
 
     let mut validation_list = vec![];
 
-    for (i, c) in guess_body.guess.to_uppercase().chars().enumerate() {
+    for (i, c) in guess_vec.into_iter().enumerate() {
         let validation = match (
             &c == word
                 .get(i)
