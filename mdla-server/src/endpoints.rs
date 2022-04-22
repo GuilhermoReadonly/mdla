@@ -79,8 +79,7 @@ pub async fn hints(data: Data<AppState>) -> Result<Json<HintsResponse>> {
     Ok(Json(response))
 }
 
-
-fn get_validation_list(word: Vec<char>, guess_word: Vec<char>) -> Vec<Validation>{
+fn get_validation_list(word: Vec<char>, guess_word: Vec<char>) -> Vec<Validation> {
     let mut validation_list = vec![];
 
     for (i, c) in guess_word.into_iter().enumerate() {
@@ -101,7 +100,6 @@ fn get_validation_list(word: Vec<char>, guess_word: Vec<char>) -> Vec<Validation
     validation_list
 }
 
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -114,15 +112,34 @@ mod tests {
 
     #[test]
     fn test_get_validation_list_all_correct() {
-        let result = get_validation_list(vec!['v','d','l','a','!'], vec!['v','d','l','a','!']);
-        assert_eq!(result, [Validation::Correct('v'), Validation::Correct('d'), Validation::Correct('l'), Validation::Correct('a'), Validation::Correct('!')]);
+        let result =
+            get_validation_list(vec!['v', 'd', 'l', 'a', '!'], vec!['v', 'd', 'l', 'a', '!']);
+        assert_eq!(
+            result,
+            [
+                Validation::Correct('v'),
+                Validation::Correct('d'),
+                Validation::Correct('l'),
+                Validation::Correct('a'),
+                Validation::Correct('!')
+            ]
+        );
     }
 
     // Todo: Make this test pass
     #[test]
     fn test_get_validation_list_mixed_validation() {
-        let result = get_validation_list(vec!['v','d','l','a','!'], vec!['m','l','d','a','a']);
-        assert_eq!(result, [Validation::NotInWord('m'), Validation::Present('l'), Validation::Present('d'), Validation::Correct('a'), Validation::NotInWord('a')]);
+        let result =
+            get_validation_list(vec!['v', 'd', 'l', 'a', '!'], vec!['m', 'l', 'd', 'a', 'a']);
+        assert_eq!(
+            result,
+            [
+                Validation::NotInWord('m'),
+                Validation::Present('l'),
+                Validation::Present('d'),
+                Validation::Correct('a'),
+                Validation::NotInWord('a')
+            ]
+        );
     }
-
 }
