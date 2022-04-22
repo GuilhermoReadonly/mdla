@@ -31,7 +31,6 @@
                     "test",
                     "--no-run",
                     "--bin=mdla-server",
-                    "--package=mdla-server"
                 ],
                 "filter": {
                     "name": "mdla-server",

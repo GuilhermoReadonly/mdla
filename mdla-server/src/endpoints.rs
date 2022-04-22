@@ -62,22 +62,7 @@ pub async fn guess(
         return Err(ResponseOrError::<GuessResponse>::Error(error).into());
     }
 
-    let mut validation_list = vec![];
-
-    for (i, c) in guess_vec.into_iter().enumerate() {
-        let validation = match (
-            &c == word
-                .get(i)
-                .unwrap_or_else(|| panic!("Index {i} exist for word {word:?}")),
-            word.contains(&c),
-        ) {
-            (true, _) => Validation::Correct(c),
-            (false, true) => Validation::Present(c),
-            (false, false) => Validation::NotInWord(c),
-        };
-
-        validation_list.push(validation);
-    }
+    let validation_list = get_validation_list(word, guess_vec);
 
     let response = GuessResponse { validation_list };
     Ok(Json(ResponseOrError::Response(response)))
@@ -92,4 +77,52 @@ pub async fn hints(data: Data<AppState>) -> Result<Json<HintsResponse>> {
         number_of_letters: word.len(),
     };
     Ok(Json(response))
+}
+
+
+fn get_validation_list(word: Vec<char>, guess_word: Vec<char>) -> Vec<Validation>{
+    let mut validation_list = vec![];
+
+    for (i, c) in guess_word.into_iter().enumerate() {
+        let validation = match (
+            &c == word
+                .get(i)
+                .unwrap_or_else(|| panic!("Index {i} exist for word {word:?}")),
+            word.contains(&c),
+        ) {
+            (true, _) => Validation::Correct(c),
+            (false, true) => Validation::Present(c),
+            (false, false) => Validation::NotInWord(c),
+        };
+
+        validation_list.push(validation);
+    }
+
+    validation_list
+}
+
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_get_validation_list_empty() {
+        let result = get_validation_list(vec![], vec![]);
+        assert_eq!(result, []);
+    }
+
+    #[test]
+    fn test_get_validation_list_all_correct() {
+        let result = get_validation_list(vec!['v','d','l','a','!'], vec!['v','d','l','a','!']);
+        assert_eq!(result, [Validation::Correct('v'), Validation::Correct('d'), Validation::Correct('l'), Validation::Correct('a'), Validation::Correct('!')]);
+    }
+
+    // Todo: Make this test pass
+    #[test]
+    fn test_get_validation_list_mixed_validation() {
+        let result = get_validation_list(vec!['v','d','l','a','!'], vec!['m','l','d','a','a']);
+        assert_eq!(result, [Validation::NotInWord('m'), Validation::Present('l'), Validation::Present('d'), Validation::Correct('a'), Validation::NotInWord('a')]);
+    }
+
 }
