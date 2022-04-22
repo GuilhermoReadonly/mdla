@@ -10,3 +10,12 @@
 
 ### Open brower
 http://localhost:8080/
+
+
+## Docker
+
+### Build
+> sudo docker build -t mdla .
+
+### Run
+> sudo docker run -ti -p 8000:8000 mdla
