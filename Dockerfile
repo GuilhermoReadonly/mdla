@@ -17,7 +17,7 @@ FROM ubuntu:rolling
 WORKDIR /root/
 
 COPY --from=builder /root/target/release/mdla-server /root/
-COPY --from=builder /root/mdla-front/dist/ /root/static/
+COPY --from=builder /root/mdla-front/dist/ /root/resources/web-app/
 
 COPY --from=builder /root/word_list_all.db /root/
 COPY --from=builder /root/word_list_playable.db /root/
