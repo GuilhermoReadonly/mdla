@@ -5,9 +5,11 @@ use std::{
 
 use actix_web::{
     middleware::Logger,
-    web::{scope, Data},
-    App, HttpServer,
+    web::{self, scope, Data},
+    App, HttpRequest, HttpServer,
 };
+
+use actix_files::{Files, NamedFile};
 
 use endpoints::{guess, hints};
 use env_logger::Env;
@@ -32,6 +34,10 @@ fn get_words(file: &str) -> Vec<String> {
     words
 }
 
+async fn index(_req: HttpRequest) -> actix_web::Result<NamedFile> {
+    Ok(NamedFile::open("./resources/web-app/index.html")?)
+}
+
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     env_logger::init_from_env(Env::default().default_filter_or("info"));
@@ -44,6 +50,8 @@ async fn main() -> std::io::Result<()> {
             }))
             .wrap(Logger::default())
             .service(scope("/api").service(guess).service(hints))
+            .route("/", web::get().to(index))
+            .service(Files::new("/", "./resources/web-app/"))
     })
     .bind("0.0.0.0:8000")?
     .run()
