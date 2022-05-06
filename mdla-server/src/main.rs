@@ -15,6 +15,7 @@ use endpoints::{guess, hints};
 use env_logger::Env;
 use log::info;
 use mdla_lib::model::AppState;
+use structopt::StructOpt;
 
 mod endpoints;
 mod errors;
@@ -38,9 +39,19 @@ async fn index(_req: HttpRequest) -> actix_web::Result<NamedFile> {
     Ok(NamedFile::open("./resources/web-app/index.html")?)
 }
 
+#[derive(StructOpt, Debug)]
+#[structopt(about = "the server side of mdla !")]
+pub struct Cli {
+    #[structopt(short = "p", long = "port", default_value = "8000")]
+    port: String,
+}
+
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     env_logger::init_from_env(Env::default().default_filter_or("info"));
+
+    let opt = Cli::from_args();
+    let port = opt.port;
 
     HttpServer::new(|| {
         App::new()
@@ -53,7 +64,7 @@ async fn main() -> std::io::Result<()> {
             .route("/", web::get().to(index))
             .service(Files::new("/", "./resources/web-app/"))
     })
-    .bind("0.0.0.0:80")?
+    .bind(format!("0.0.0.0:{port}"))?
     .run()
     .await
 }
