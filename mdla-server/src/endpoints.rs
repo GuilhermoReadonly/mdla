@@ -97,6 +97,8 @@ fn get_validation_list(word: Vec<char>, guess_word: Vec<char>) -> Vec<Validation
 
 #[cfg(test)]
 mod tests {
+    use rand::prelude::*;
+
     use super::*;
 
     #[test]
@@ -116,6 +118,31 @@ mod tests {
                 Validation::Correct('l'),
                 Validation::Correct('a'),
             ]
+        );
+    }
+
+    #[test]
+    fn test_get_validation_list_random() {
+        let mut rng = thread_rng();
+
+        let word_len: usize = rng.gen_range(1..100);
+
+        let mut word = vec!['0'; word_len];
+        let mut guess_word = vec!['0'; word_len];
+
+        rng.fill(&mut word[..]);
+        rng.fill(&mut guess_word[..]);
+
+        let result = get_validation_list(word, guess_word.clone());
+
+        assert!(
+            Iterator::zip(result.iter(), guess_word.iter()).all(|(v, c)| {
+                match v {
+                    Validation::Correct(cv) => cv == c,
+                    Validation::NotInWord(cv) => cv == c,
+                    Validation::Present(cv) => cv == c,
+                }
+            })
         );
     }
 
