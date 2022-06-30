@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use actix_web::{
     get, post,
     web::{Data, Json},
@@ -81,15 +83,37 @@ pub async fn hints(data: Data<AppState>) -> Result<Json<HintsResponse>> {
 
 fn get_validation_list(word: Vec<char>, guess_word: Vec<char>) -> Vec<Validation> {
     let mut validation_list = vec![];
+    let mut chars_not_found = HashMap::new();
 
-    for (wc, gc) in Iterator::zip(word.iter(), guess_word.iter()) {
-        let validation = match (wc == gc, word.contains(gc)) {
-            (true, _) => Validation::Correct(*gc),
-            (false, true) => Validation::Present(*gc),
-            (false, false) => Validation::NotInWord(*gc),
+    // First pass will correctly set Correct and NotInWord validations but Present validations may be wrong in some cases
+    for (char_word, char_guessed) in Iterator::zip(word.iter(), guess_word.iter()) {
+        let validation = match (char_word == char_guessed, word.contains(char_guessed)) {
+            (true, _) => Validation::Correct(*char_guessed),
+            (false, true) => {
+                let char_count = chars_not_found.entry(char_word).or_insert(0);
+                *char_count += 1;
+                Validation::Present(*char_guessed)
+            }
+            (false, false) => {
+                let char_count = chars_not_found.entry(char_word).or_insert(0);
+                *char_count += 1;
+                Validation::NotInWord(*char_guessed)
+            }
         };
 
         validation_list.push(validation);
+    }
+
+    // Second pass will correctly set Present validations based on the correct and present hits set on the previous loop
+    for validation in validation_list.iter_mut() {
+        if let Validation::Present(char_guessed) = *validation {
+            if chars_not_found.get(&char_guessed).unwrap_or(&0) > &0 {
+                let char_count = chars_not_found.get_mut(&char_guessed).expect("No char");
+                *char_count -= 1;
+            } else {
+                *validation = Validation::NotInWord(char_guessed);
+            }
+        }
     }
 
     validation_list
@@ -147,7 +171,7 @@ mod tests {
     }
 
     #[test]
-    fn test_get_validation_list_mixed_validation_1() {
+    fn test_get_validation_list_mixed_validation() {
         let result =
             get_validation_list(vec!['a', 'b', 'c', 'd', 'e'], vec!['f', 'a', 'b', 'd', 'g']);
         assert_eq!(
@@ -160,21 +184,26 @@ mod tests {
                 Validation::NotInWord('g')
             ]
         );
-    }
 
-    // Todo: Make this test pass
-    #[test]
-    fn test_get_validation_list_mixed_validation_2() {
-        let result =
-            get_validation_list(vec!['v', 'd', 'l', 'a', '!'], vec!['m', 'l', 'd', 'a', 'a']);
+        let result = get_validation_list(vec!['a', 'b', 'b', 'a'], vec!['a', 'a', 'b', 'a']);
         assert_eq!(
             result,
             [
-                Validation::NotInWord('m'),
-                Validation::Present('l'),
-                Validation::Present('d'),
                 Validation::Correct('a'),
-                Validation::NotInWord('a')
+                Validation::NotInWord('a'),
+                Validation::Correct('b'),
+                Validation::Correct('a')
+            ]
+        );
+
+        let result = get_validation_list(vec!['a', 'b', 'b', 'a'], vec!['b', 'b', 'a', 'b']);
+        assert_eq!(
+            result,
+            [
+                Validation::Present('b'),
+                Validation::Correct('b'),
+                Validation::Present('a'),
+                Validation::NotInWord('b')
             ]
         );
     }
