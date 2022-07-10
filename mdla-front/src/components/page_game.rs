@@ -3,7 +3,7 @@ use mdla_lib::model::{
     AppError, GuessBody, GuessResponse, GuessResponseOrError, HintsResponse, Validation,
 };
 use std::error::Error;
-use web_sys::HtmlInputElement;
+
 use yew::prelude::*;
 
 use crate::{
@@ -61,7 +61,6 @@ impl Component for GamePageComponent {
 
     fn view(&self, ctx: &Context<Self>) -> Html {
         if let Some(hints) = &self.hints {
-
             html! {
                 <>
                     <h1>{"MdlA"}</h1>
