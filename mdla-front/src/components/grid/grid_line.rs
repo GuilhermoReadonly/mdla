@@ -89,11 +89,11 @@ impl Component for GridLineComponent {
         }
     }
 
-    fn update(&mut self, _ctx: &Context<Self>, _msg: Self::Message) -> bool {
-        match _msg {
+    fn update(&mut self, ctx: &Context<Self>, msg: Self::Message) -> bool {
+        match msg {
             Msg::UpdateGuess(char, _position) => {
                 self.guessed_word.push_str(&char);
-                if let Some(cb) = &_ctx.props().on_guessed_word_change {
+                if let Some(cb) = &ctx.props().on_guessed_word_change {
                     cb.emit(self.guessed_word.clone());
                 }
             }

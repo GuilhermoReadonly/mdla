@@ -15,7 +15,6 @@ pub struct GridComponent;
 #[derive(Debug, Properties, PartialEq)]
 pub struct GridProperties {
     pub past_guesses: Vec<GuessResponse>,
-    pub length: usize,
     pub width: usize,
     pub on_guessed_word_change: Callback<String>,
 }
@@ -37,7 +36,7 @@ impl Component for GridComponent {
     }
 
     fn view(&self, ctx: &Context<Self>) -> Html {
-        let lines = 0..ctx.props().length;
+        let lines = 0..ctx.props().past_guesses.len() + 1;
         let width = ctx.props().width;
 
         html! {
@@ -78,7 +77,6 @@ impl YieldStyle for GridComponent {
             margin-left: auto;
             margin-right: auto;
             background-color: var(--color-back-grid);
-            min-height: calc(6 * var(--cell-size) + 12 * var(--width-cell-border));
             border-spacing: 0;
             background-color: var(--color-back-grid);
 

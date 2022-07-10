@@ -61,30 +61,17 @@ impl Component for GamePageComponent {
 
     fn view(&self, ctx: &Context<Self>) -> Html {
         if let Some(hints) = &self.hints {
-            // let on_guessed_word_change = Callback::from(move |guessed_word: String| {
-            //     ctx.link().callback(move |e: Event| {
-            //         Msg::UpdateGuess(guessed_word)
-            //     });
-            // });
+
             html! {
                 <>
                     <h1>{"MdlA"}</h1>
                     <p>{format!("Mot de {} lettres commençant par {}", hints.number_of_letters, hints.first_letter)}</p>
-                    <GridComponent length={6} width={hints.number_of_letters} past_guesses={self.past_guesses.clone()} on_guessed_word_change={
+                    <GridComponent width={hints.number_of_letters} past_guesses={self.past_guesses.clone()} on_guessed_word_change={
                         ctx.link().callback(|guessed_word: String| {
                             Msg::UpdateGuess(guessed_word)
                         })
                     } />
                     <p>
-                        <input
-                        type="text"
-                        value=""
-                        required=true
-                        onchange={ctx.link().callback(move |e: Event| {
-                            let input: HtmlInputElement = e.target_unchecked_into();
-                            let value = input.value();
-                            Msg::UpdateGuess(value)
-                        })}/>
                         <button onclick={ctx.link().callback(move|_| {
                             Msg::PostGuess
                         })}>{"Envoyer"}</button>
