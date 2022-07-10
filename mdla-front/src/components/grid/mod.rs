@@ -20,6 +20,57 @@ pub struct GridProperties {
     pub on_guessed_word_change: Callback<String>,
 }
 
+pub enum Msg {
+    UpdateGuess(String),
+}
+
+impl Component for GridComponent {
+    type Message = Msg;
+    type Properties = GridProperties;
+
+    fn create(_ctx: &Context<Self>) -> Self {
+        Self
+    }
+
+    fn changed(&mut self, _ctx: &Context<Self>) -> bool {
+        true
+    }
+
+    fn view(&self, ctx: &Context<Self>) -> Html {
+        let lines = 0..ctx.props().length;
+        let width = ctx.props().width;
+
+        html! {
+            <table class={self.style()}>{
+                lines.into_iter().map(|i| {
+                    let guess = ctx.props().past_guesses.get(i).cloned();
+
+                    let editable = i == 0 && guess.is_none() || i > 0 && guess.is_none() && ctx.props().past_guesses.get(i - 1).cloned().is_some();
+
+                    let on_guessed_word_change: Option<Callback<String>> = if editable {
+                        Some(ctx.link().callback(|guessed_word: String| {
+                            Msg::UpdateGuess(guessed_word)
+                        }))
+                    } else {
+                        None
+                    };
+
+                    html! {<tr> <GridLineComponent editable={editable} guess={guess} width={width} {on_guessed_word_change}  /> </ tr>}
+                }).collect::<Html>()
+            }</table>
+        }
+    }
+
+    fn update(&mut self, _ctx: &Context<Self>, _msg: Self::Message) -> bool {
+        match _msg {
+            Msg::UpdateGuess(char) => {
+                _ctx.props().on_guessed_word_change.emit(char);
+            }
+        }
+        false
+    }
+}
+
 impl YieldStyle for GridComponent {
     fn style_from(&self) -> StyleSource<'static> {
         css!(
@@ -67,59 +118,9 @@ impl YieldStyle for GridComponent {
                 font-size: 30px;
                 width: calc(100% - 2 * var(--width-padding-cell));
                 text-align: center;
+                color: var(--color-police-grid);
             }
         "
         )
-    }
-}
-
-pub enum Msg2 {
-    UpdateGuess(String),
-}
-
-impl Component for GridComponent {
-    type Message = Msg2;
-    type Properties = GridProperties;
-
-    fn create(_ctx: &Context<Self>) -> Self {
-        Self
-    }
-
-    fn changed(&mut self, _ctx: &Context<Self>) -> bool {
-        true
-    }
-
-    fn view(&self, ctx: &Context<Self>) -> Html {
-        let lines = 0..ctx.props().length;
-        let width = ctx.props().width;
-
-        html! {
-            <table class={self.style()}>{
-                lines.into_iter().map(|i| {
-                    let guess = ctx.props().past_guesses.get(i).cloned();
-
-                    let editable = i == 0 && guess.is_none() || i > 0 && guess.is_none() && ctx.props().past_guesses.get(i - 1).cloned().is_some();
-
-                    let on_guessed_word_change: Option<Callback<String>> = if editable {
-                        Some(ctx.link().callback(|guessed_word: String| {
-                            Msg2::UpdateGuess(guessed_word)
-                        }))
-                    } else {
-                        None
-                    };
-
-                    html! {<tr> <GridLineComponent editable={editable} guess={guess} width={width} {on_guessed_word_change}  /> </ tr>}
-                }).collect::<Html>()
-            }</table>
-        }
-    }
-
-    fn update(&mut self, _ctx: &Context<Self>, _msg: Self::Message) -> bool {
-        match _msg {
-            Msg2::UpdateGuess(char) => {
-                _ctx.props().on_guessed_word_change.emit(char);
-            }
-        }
-        false
     }
 }
