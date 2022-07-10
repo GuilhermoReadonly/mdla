@@ -1,5 +1,5 @@
 use mdla_lib::model::{GuessResponse, Validation};
-use stylist::{css, YieldStyle, StyleSource};
+use stylist::{css, StyleSource, YieldStyle};
 use web_sys::HtmlInputElement;
 use yew::prelude::*;
 
@@ -19,7 +19,8 @@ pub struct GridProperties {
 
 impl YieldStyle for GridComponent {
     fn style_from(&self) -> StyleSource<'static> {
-        css!("
+        css!(
+            "
             margin-left: auto;
             margin-right: auto;
             background-color: var(--color-back-grid);
@@ -64,7 +65,8 @@ impl YieldStyle for GridComponent {
                 width: calc(100% - 2 * var(--width-padding-cell));
                 text-align: center;
             }
-        ")
+        "
+        )
     }
 }
 
@@ -112,7 +114,7 @@ impl Component for GridComponent {
     fn update(&mut self, _ctx: &Context<Self>, _msg: Self::Message) -> bool {
         match _msg {
             Msg2::UpdateGuess(char) => {
-                _ctx.props().on_guessed_word_change.emit(char.clone());
+                _ctx.props().on_guessed_word_change.emit(char);
             }
         }
         false
@@ -145,7 +147,7 @@ impl Component for GridLineComponent {
 
     fn create(_ctx: &Context<Self>) -> Self {
         Self {
-            guessed_word: String::default()
+            guessed_word: String::default(),
         }
     }
 
@@ -164,7 +166,7 @@ impl Component for GridLineComponent {
                             html! {
                                 <>
                                     <td class="editabe">
-                                        <input 
+                                        <input
                                             type="text"
                                             maxlength="1"
                                             onchange={ctx.link().callback(move |e: Event| {
@@ -209,7 +211,7 @@ impl Component for GridLineComponent {
 
     fn update(&mut self, _ctx: &Context<Self>, _msg: Self::Message) -> bool {
         match _msg {
-            Msg::UpdateGuess(char, position) => {
+            Msg::UpdateGuess(char, _position) => {
                 self.guessed_word.push_str(&char);
                 if let Some(cb) = &_ctx.props().on_guessed_word_change {
                     cb.emit(self.guessed_word.clone());
