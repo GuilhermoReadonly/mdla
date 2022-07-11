@@ -29,3 +29,45 @@ body {
   margin: 0;
   padding: 0;
 }
+
+.grid {
+  margin-left: auto;
+  margin-right: auto;
+  border-spacing: 0;
+  background-color: var(--color-back-grid);
+  color: var(--color-police-grid);
+}
+
+.grid td {
+    width: calc(var(--cell-size) - 2 * var(--width-padding-cell));
+    height: calc(var(--cell-size) - 2 * var(--width-padding-cell));
+    text-align: center;
+    position: relative;
+    padding: var(--width-padding-cell);
+    
+    border: 1px solid var(--color-border-grid);
+    z-index: 0;
+}
+
+.grid .present {
+    background-color: var(--color-present);
+    border-radius: 50%;
+}
+
+.grid .correct {
+    background-color: var(--color-correct);
+}
+
+.grid .not-in-word {
+    background-color: var(--color-not-in-word);
+}
+
+.grid .input-cell {
+    border: none;
+    outline: none;
+    font-size: 32px;
+    width: calc(100% - 2 * var(--width-padding-cell));
+    text-align: center;
+    background-color: var(--color-back-grid);
+    color: var(--color-police-grid);
+}

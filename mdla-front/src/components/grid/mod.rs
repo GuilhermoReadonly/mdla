@@ -1,7 +1,6 @@
 use crate::components::grid::grid_input::GridInputComponent;
 use crate::components::grid::grid_line::GridLineComponent;
 use mdla_lib::model::{GuessResponse, Validation};
-use stylist::{css, StyleSource, YieldStyle};
 use yew::prelude::*;
 
 mod grid_cell;
@@ -37,7 +36,7 @@ impl Component for GridComponent {
 
         html! {
             <>
-            <table class={self.style()}>
+            <table class="grid">
             // Past guesses grid
             {
                 past_guesses
@@ -73,56 +72,5 @@ impl Component for GridComponent {
 
     fn update(&mut self, _ctx: &Context<Self>, _msg: Self::Message) -> bool {
         false
-    }
-}
-
-impl YieldStyle for GridComponent {
-    fn style_from(&self) -> StyleSource<'static> {
-        css!(
-            "
-            margin-left: auto;
-            margin-right: auto;
-            border-spacing: 0;
-            background-color: var(--color-back-grid);
-            color: var(--color-police-grid);
-
-            td {
-                width: calc(var(--cell-size) - 2 * var(--width-padding-cell));
-                height: calc(var(--cell-size) - 2 * var(--width-padding-cell));
-                text-align: center;
-                position: relative;
-                padding: var(--width-padding-cell);
-                
-                border: 1px solid var(--color-border-grid);
-                z-index: 0;
-            }
-
-            .present {
-                background-color: var(--color-present);
-                border-radius: 50%;
-            }
-            
-            .correct {
-                background-color: var(--color-correct);
-            }
-            
-            .not-in-word {
-                background-color: var(--color-not-in-word);
-            }
-
-
-
-            .input-cell {
-                border: none;
-                height: 100%;
-                outline: none;
-                font-size: 30px;
-                width: calc(100% - 2 * var(--width-padding-cell));
-                text-align: center;
-                background-color: var(--color-back-grid);
-                color: var(--color-police-grid);
-            }
-        "
-        )
     }
 }
