@@ -16,6 +16,7 @@ pub struct GridProperties {
     pub past_guesses: Vec<GuessResponse>,
     pub width: usize,
     pub on_guessed_word_change: Callback<String>,
+    pub on_validate: Callback<()>,
 }
 
 impl Component for GridComponent {
@@ -37,6 +38,7 @@ impl Component for GridComponent {
         html! {
             <>
             <table class={self.style()}>
+            // Past guesses grid
             {
                 past_guesses
                 .iter()
@@ -46,12 +48,21 @@ impl Component for GridComponent {
                 })
                 .collect::<Html>()
             }
+            // Input grid: displayed if game still going
             {
                 if past_guesses.last().map_or(false, |last_guess| last_guess.validation_list.iter().all(|v| matches!(v, Validation::Correct(_))))
                 {
                     html! {}
-                } else { 
-                    html!{<tr> <GridInputComponent width={width} on_guessed_word_change={ctx.props().on_guessed_word_change.clone()} /> </ tr>}
+                } else {
+                    html!{
+                        <tr>
+                            <GridInputComponent
+                                width={width}
+                                on_guessed_word_change={ctx.props().on_guessed_word_change.clone()}
+                                on_validate={ctx.props().on_validate.clone()}
+                            />
+                        </ tr>
+                    }
                 }
             }
 

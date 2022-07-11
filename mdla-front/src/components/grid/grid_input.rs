@@ -12,11 +12,14 @@ pub struct GridInputComponent {
 pub struct GridInputProperties {
     pub width: usize,
     pub on_guessed_word_change: Callback<String>,
+    pub on_validate: Callback<()>,
 }
 
 #[derive(Debug)]
 pub enum Msg {
     UpdateGuess(String, usize),
+    Validate,
+    NoValidate,
 }
 
 impl GridInputComponent {
@@ -35,7 +38,24 @@ impl GridInputComponent {
                 .expect("focus should be ok on input element")
         };
     }
+
+    fn reset(&self, id: &str) {
+        info!("Reset input {id}");
+        let elt = window()
+            .expect("no global `window` exists")
+            .document()
+            .expect("should have a document on window")
+            .get_element_by_id(id);
+
+        info!("Reset input {elt:?}");
+        if let Some(e) = elt {
+            e.dyn_ref::<HtmlInputElement>()
+                .expect("#id should be an `HtmlElement`")
+                .set_value("")
+        };
+    }
 }
+
 impl Component for GridInputComponent {
     type Message = Msg;
     type Properties = GridInputProperties;
@@ -70,6 +90,16 @@ impl Component for GridInputComponent {
                         Msg::UpdateGuess(value, cell_number)
                     })
                 };
+                let onkeypress = {
+                    ctx.link().callback(move |e: KeyboardEvent| {
+                        info!("Keyboard event: {e:?}");
+                        if &e.code() == "Enter" {
+                            Msg::Validate
+                        } else {
+                            Msg::NoValidate
+                        }
+                    })
+                };
 
                 let id = format!("input-cell-{cell_number}");
 
@@ -82,6 +112,7 @@ impl Component for GridInputComponent {
                                 type="text"
                                 maxlength="1"
                                 {oninput}
+                                {onkeypress}
                             />
                         </td>
                     </>
@@ -117,6 +148,16 @@ impl Component for GridInputComponent {
                     .on_guessed_word_change
                     .emit(self.guessed_word.clone());
             }
+            Msg::Validate => {
+                self.guessed_word = String::new();
+                for i in 0..ctx.props().width {
+                    let id = format!("input-cell-{i}");
+                    self.reset(&id);
+                }
+                self.focus_on_id("input-cell-0");
+                ctx.props().on_validate.emit(());
+            }
+            Msg::NoValidate => {}
         }
         true
     }

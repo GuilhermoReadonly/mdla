@@ -65,16 +65,12 @@ impl Component for GamePageComponent {
                 <>
                     <h1>{"MdlA"}</h1>
                     <p>{format!("Mot de {} lettres commençant par {}", hints.number_of_letters, hints.first_letter)}</p>
-                    <GridComponent width={hints.number_of_letters} past_guesses={self.past_guesses.clone()} on_guessed_word_change={
-                        ctx.link().callback(|guessed_word: String| {
-                            Msg::UpdateGuess(guessed_word)
-                        })
-                    } />
-                    <p>
-                        <button onclick={ctx.link().callback(move|_| {
-                            Msg::PostGuess
-                        })}>{"Envoyer"}</button>
-                    </p>
+                    <GridComponent
+                        width={hints.number_of_letters}
+                        past_guesses={self.past_guesses.clone()}
+                        on_guessed_word_change={ctx.link().callback(Msg::UpdateGuess)}
+                        on_validate={ctx.link().callback(|_| Msg::PostGuess)}
+                    />
                     <MessageBox message={self.message.clone()} />
                 </>
             }
