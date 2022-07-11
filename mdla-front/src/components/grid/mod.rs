@@ -1,6 +1,6 @@
 use crate::components::grid::grid_input::GridInputComponent;
 use crate::components::grid::grid_line::GridLineComponent;
-use mdla_lib::model::GuessResponse;
+use mdla_lib::model::{GuessResponse, Validation};
 use stylist::{css, StyleSource, YieldStyle};
 use yew::prelude::*;
 
@@ -31,23 +31,28 @@ impl Component for GridComponent {
     }
 
     fn view(&self, ctx: &Context<Self>) -> Html {
-        let lines = 0..ctx.props().past_guesses.len();
+        let past_guesses = &ctx.props().past_guesses;
         let width = ctx.props().width;
 
         html! {
             <>
             <table class={self.style()}>
             {
-                lines
-                .into_iter()
-                .map(|i| {
-                    let guess = ctx.props().past_guesses.get(i).cloned();
-                    html! {<tr> <GridLineComponent guess={guess.expect("A guess should exist.")} width={width} /> </ tr>}
+                past_guesses
+                .iter()
+                .map(|g| {
+                    let guess = g.clone();
+                    html! {<tr> <GridLineComponent guess={guess} width={width} /> </ tr>}
                 })
                 .collect::<Html>()
             }
             {
-                html! {<tr> <GridInputComponent width={width} on_guessed_word_change={ctx.props().on_guessed_word_change.clone()} /> </ tr>}
+                if past_guesses.last().is_some() &&  past_guesses
+                .last()
+                .expect("last guess should exist")
+                .validation_list.iter().all(|v| if let Validation::Correct(_) = v {true} else {false}) {
+                    html! {}
+                } else { html!{<tr> <GridInputComponent width={width} on_guessed_word_change={ctx.props().on_guessed_word_change.clone()} /> </ tr>}}
             }
 
             </table>
