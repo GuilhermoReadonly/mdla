@@ -47,12 +47,12 @@ impl Component for GridComponent {
                 .collect::<Html>()
             }
             {
-                if past_guesses.last().is_some() &&  past_guesses
-                .last()
-                .expect("last guess should exist")
-                .validation_list.iter().all(|v| if let Validation::Correct(_) = v {true} else {false}) {
+                if past_guesses.last().map_or(false, |last_guess| last_guess.validation_list.iter().all(|v| matches!(v, Validation::Correct(_))))
+                {
                     html! {}
-                } else { html!{<tr> <GridInputComponent width={width} on_guessed_word_change={ctx.props().on_guessed_word_change.clone()} /> </ tr>}}
+                } else { 
+                    html!{<tr> <GridInputComponent width={width} on_guessed_word_change={ctx.props().on_guessed_word_change.clone()} /> </ tr>}
+                }
             }
 
             </table>
