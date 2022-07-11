@@ -1,11 +1,14 @@
 use log::info;
-use wasm_bindgen::JsCast;
+use wasm_bindgen::{prelude::Closure, JsCast};
 use web_sys::{window, HtmlElement, HtmlInputElement};
 use yew::prelude::*;
 
 #[derive(Debug)]
 pub struct GridInputComponent {
     pub guessed_word: String,
+    // We need this dummy field just to store the Closure...
+    // Otherwise the closure is destroyed when going out of scope.
+    body_on_click: Closure<dyn Fn()>,
 }
 
 #[derive(Debug, Properties, PartialEq)]
@@ -22,47 +25,22 @@ pub enum Msg {
     NoValidate,
 }
 
-impl GridInputComponent {
-    fn focus_on_id(&self, id: &str) {
-        info!("Focus on {id}");
-        let elt = window()
-            .expect("no global `window` exists")
-            .document()
-            .expect("should have a document on window")
-            .get_element_by_id(id);
-
-        if let Some(e) = elt {
-            e.dyn_ref::<HtmlElement>()
-                .expect("#id should be an `HtmlElement`")
-                .focus()
-                .expect("focus should be ok on input element")
-        };
-    }
-
-    fn reset(&self, id: &str) {
-        info!("Reset input {id}");
-        let elt = window()
-            .expect("no global `window` exists")
-            .document()
-            .expect("should have a document on window")
-            .get_element_by_id(id);
-
-        info!("Reset input {elt:?}");
-        if let Some(e) = elt {
-            e.dyn_ref::<HtmlInputElement>()
-                .expect("#id should be an `HtmlElement`")
-                .set_value("")
-        };
-    }
-}
-
 impl Component for GridInputComponent {
     type Message = Msg;
     type Properties = GridInputProperties;
 
     fn create(_ctx: &Context<Self>) -> Self {
+        let body_on_click = Closure::wrap(Box::new(move || {
+            info!("Click on body");
+
+            if !is_focus_on_input() {
+                focus_on_id("input-cell-0");
+            }
+        }) as Box<dyn Fn()>);
+
         Self {
             guessed_word: String::default(),
+            body_on_click,
         }
     }
 
@@ -71,9 +49,22 @@ impl Component for GridInputComponent {
     }
 
     fn rendered(&mut self, _ctx: &Context<Self>, first_render: bool) {
+        info!("Rendered");
         if first_render {
-            let id = "input-cell-0";
-            self.focus_on_id(id);
+            let body = window()
+                .expect("should have a window in this context")
+                .document()
+                .expect("window should have a document")
+                .body()
+                .expect("A body should be there");
+
+            body.add_event_listener_with_callback(
+                "click",
+                self.body_on_click.as_ref().unchecked_ref(),
+            )
+            .expect("On click call back should work");
+
+            focus_on_id("input-cell-0");
         }
     }
 
@@ -92,8 +83,10 @@ impl Component for GridInputComponent {
                 };
                 let onkeypress = {
                     ctx.link().callback(move |e: KeyboardEvent| {
-                        info!("Keyboard event: {e:?}");
+                        info!("Keyboard event: {}", e.code());
                         if &e.code() == "Enter" {
+                            Msg::Validate
+                        } else if &e.code() == "Return" {
                             Msg::Validate
                         } else {
                             Msg::NoValidate
@@ -129,12 +122,12 @@ impl Component for GridInputComponent {
                     (false, true) => {
                         self.guessed_word.insert_str(position, &char);
                         let id = format!("input-cell-{}", position + 1);
-                        self.focus_on_id(id.as_str())
+                        focus_on_id(id.as_str())
                     }
                     (false, false) => {
                         self.guessed_word.push_str(&char);
                         let id = format!("input-cell-{}", position + 1);
-                        self.focus_on_id(id.as_str())
+                        focus_on_id(id.as_str())
                     }
                     (true, true) => {
                         self.guessed_word.remove(position);
@@ -150,15 +143,63 @@ impl Component for GridInputComponent {
             }
             Msg::Validate => {
                 self.guessed_word = String::new();
-                for i in 0..ctx.props().width {
-                    let id = format!("input-cell-{i}");
-                    self.reset(&id);
-                }
-                self.focus_on_id("input-cell-0");
+                reset_all_inputs(ctx.props().width);
+
+                focus_on_id("input-cell-0");
                 ctx.props().on_validate.emit(());
             }
             Msg::NoValidate => {}
         }
         true
+    }
+}
+
+fn focus_on_id(id: &str) {
+    info!("Focus on {id}");
+    let elt = window()
+        .expect("no global `window` exists")
+        .document()
+        .expect("should have a document on window")
+        .get_element_by_id(id);
+
+    if let Some(e) = elt {
+        e.dyn_ref::<HtmlElement>()
+            .expect("#id should be an `HtmlElement`")
+            .focus()
+            .expect("focus should be ok on input element")
+    };
+}
+
+fn is_focus_on_input() -> bool {
+    let elt = window()
+        .expect("no global `window` exists")
+        .document()
+        .expect("should have a document on window")
+        .active_element();
+
+    if let Some(elt) = elt {
+        elt.id().contains("input-cell")
+    } else {
+        false
+    }
+}
+
+fn reset_all_inputs(n: usize) {
+    info!("Reset all input");
+
+    for i in 0..n {
+        let id = format!("input-cell-{i}");
+        let elt = window()
+            .expect("no global `window` exists")
+            .document()
+            .expect("should have a document on window")
+            .get_element_by_id(&id);
+
+        info!("Reset input {elt:?}");
+        if let Some(e) = elt {
+            e.dyn_ref::<HtmlInputElement>()
+                .expect("#id should be an `HtmlElement`")
+                .set_value("")
+        };
     }
 }
