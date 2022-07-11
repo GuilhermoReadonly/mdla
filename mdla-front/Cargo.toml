@@ -29,6 +29,9 @@ web-sys = {version = "0.3", features = [
   "RequestMode",
   "Response",
   "Window",
+  "Document",
+  "Element",
+  "HtmlElement"
 ]}
 
 serde = "1.0"
