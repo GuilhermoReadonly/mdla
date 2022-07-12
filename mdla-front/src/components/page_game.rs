@@ -11,9 +11,13 @@ use crate::{
     network::request,
 };
 
+const PICTO_RED: char = '🟥';
+const PICTO_YELLOW: char = '🟡';
+const PICTO_BLUE: char = '🟦';
+
 #[derive(Debug, PartialEq, Clone)]
 pub struct Message {
-    pub text: String,
+    pub text: Vec<String>,
     pub severity: Severity,
 }
 
@@ -39,6 +43,30 @@ pub struct GamePageComponent {
     past_guesses: Vec<GuessResponse>,
     current_guess: String,
     message: Option<Message>,
+}
+
+impl GamePageComponent {
+    fn get_picto_result(&self) -> Vec<String> {
+        let mut result = vec![];
+
+        for guess in self.past_guesses.iter() {
+            let mut line = String::default();
+            for validation in guess.validation_list.iter() {
+                match &validation {
+                    Validation::Correct(_) => line.push(PICTO_RED),
+                    Validation::Present(_) => line.push(PICTO_YELLOW),
+                    Validation::NotInWord(_) => line.push(PICTO_BLUE),
+                }
+            }
+            result.push(line)
+        }
+        let mut last_line = String::default();
+        for _ in 0..self.current_guess.len() {
+            last_line.push(PICTO_RED)
+        }
+        result.push(last_line);
+        result
+    }
 }
 
 impl Component for GamePageComponent {
@@ -134,7 +162,16 @@ impl Component for GamePageComponent {
                         if correct_guess {
                             self.message = Some(Message {
                                 severity: Severity::Info,
-                                text: "Bravo ! \\o/".to_string(),
+                                text: [
+                                    vec![
+                                        "Bravo ! \\o/".to_string(),
+                                        "".to_string(),
+                                        "Partage ton score:".to_string(),
+                                        "".to_string(),
+                                    ],
+                                    self.get_picto_result(),
+                                ]
+                                .concat(),
                             })
                         }
 
@@ -144,10 +181,10 @@ impl Component for GamePageComponent {
                         warn!("Bad request...: {:?}", app_error);
                         match app_error{
                             AppError::WordNotInDictionary(w) => {
-                                self.message = Some(Message{severity:Severity::Warn, text:format!("Le mot {w} n'est pas dans notre dictionnaire.")})
+                                self.message = Some(Message{severity:Severity::Warn, text:vec![format!("Le mot {w} n'est pas dans notre dictionnaire.")]})
                             }
                             AppError::BadWordLength { size_expected: se, size_received: sr, word_sent: w } => {
-                                self.message = Some(Message{severity:Severity::Warn, text:format!("Le mot {w} a {sr} lettres mais le mot a deviner doit en avoir {se}.")})
+                                self.message = Some(Message{severity:Severity::Warn, text:vec![format!("Le mot {w} a {sr} lettres mais le mot a deviner doit en avoir {se}.")]})
                             }
                         }
                     }
@@ -155,7 +192,7 @@ impl Component for GamePageComponent {
                         error!("Something terrible happened...: {:?}", e);
                         self.message = Some(Message {
                             severity: Severity::Error,
-                            text: format!("Quelque chose cloche : {:?}", e),
+                            text: vec![format!("Quelque chose cloche... Reviens dans quelques minutes le temps que le serveur revienne de vacances ! :)")],
                         })
                     }
                 }

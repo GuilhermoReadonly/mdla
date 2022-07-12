@@ -23,9 +23,17 @@ impl Component for MessageBox {
     }
 
     fn view(&self, ctx: &Context<Self>) -> Html {
-        match &ctx.props().message {
-            None => html!(),
-            Some(m) => html!(<>{&m.text}</>),
+        html! {
+            <p>
+                {match &ctx.props().message {
+                None => html!(),
+                Some(m) => m.text.iter().map(|t| html!(
+                    <>
+                    {t}<br/>
+                    </>
+                )).collect()}}
+            </p>
+
         }
     }
 
