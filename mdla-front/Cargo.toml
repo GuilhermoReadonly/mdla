@@ -12,8 +12,8 @@ path = "src/main.rs"
 mdla-lib = { path = "../mdla-lib" }
 
 
-wasm-bindgen = {version="0.2.78", features = ["serde-serialize"]}
-wasm-bindgen-futures = {version="0.4.28"}
+wasm-bindgen = {version="0.2", features = ["serde-serialize"]}
+wasm-bindgen-futures = {version="0.4"}
 
 log = "0.4"
 wasm-logger = "0.2"
@@ -36,5 +36,3 @@ web-sys = {version = "0.3", features = [
 
 serde = "1.0"
 serde_json = "1.0"
-
-stylist = {version="0.10", features = ["yew_integration"]}

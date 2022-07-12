@@ -22,6 +22,7 @@ pub struct GridInputProperties {
 pub enum Msg {
     UpdateGuess(String, usize),
     Validate,
+    Back,
     NoValidate,
 }
 
@@ -33,7 +34,7 @@ impl Component for GridInputComponent {
         let body_on_click = Closure::wrap(Box::new(move || {
             info!("Click on body");
 
-            if !is_focus_on_input() {
+            if is_focus_on_input().is_none() {
                 focus_on_id("input-cell-0");
             }
         }) as Box<dyn Fn()>);
@@ -74,25 +75,21 @@ impl Component for GridInputComponent {
         cells
             .into_iter()
             .map(|cell_number| {
-                let oninput = {
-                    ctx.link().callback(move |e: InputEvent| {
-                        let input: HtmlInputElement = e.target_unchecked_into();
-                        let value = input.value();
-                        Msg::UpdateGuess(value, cell_number)
-                    })
-                };
-                let onkeypress = {
-                    ctx.link().callback(move |e: KeyboardEvent| {
-                        info!("Keyboard event: {}", e.code());
-                        if &e.code() == "Enter" {
-                            Msg::Validate
-                        } else if &e.code() == "Return" {
-                            Msg::Validate
-                        } else {
-                            Msg::NoValidate
-                        }
-                    })
-                };
+                let oninput = ctx.link().callback(move |e: InputEvent| {
+                    let input: HtmlInputElement = e.target_unchecked_into();
+                    let value = input.value();
+                    Msg::UpdateGuess(value, cell_number)
+                });
+                let onkeydown = ctx.link().callback(move |e: KeyboardEvent| {
+                    info!("Keyboard event: {}", e.code());
+                    if &e.code() == "Enter" {
+                        Msg::Validate
+                    } else if &e.code() == "Backspace" {
+                        Msg::Back
+                    } else {
+                        Msg::NoValidate
+                    }
+                });
 
                 let id = format!("input-cell-{cell_number}");
 
@@ -105,7 +102,7 @@ impl Component for GridInputComponent {
                                 type="text"
                                 maxlength="1"
                                 {oninput}
-                                {onkeypress}
+                                {onkeydown}
                             />
                         </td>
                     </>
@@ -149,6 +146,13 @@ impl Component for GridInputComponent {
                 ctx.props().on_validate.emit(());
             }
             Msg::NoValidate => {}
+            Msg::Back => {
+                if let Some(nb_input) = is_focus_on_input() {
+                    let new_nb_input = if nb_input > 0 { nb_input - 1 } else { nb_input };
+                    let id = format!("input-cell-{new_nb_input}");
+                    focus_on_id(&id);
+                }
+            }
         }
         true
     }
@@ -170,17 +174,25 @@ fn focus_on_id(id: &str) {
     };
 }
 
-fn is_focus_on_input() -> bool {
+fn is_focus_on_input() -> Option<usize> {
     let elt = window()
         .expect("no global `window` exists")
         .document()
         .expect("should have a document on window")
         .active_element();
 
-    if let Some(elt) = elt {
-        elt.id().contains("input-cell")
+    let elt = elt?;
+    if elt.id().contains("input-cell") {
+        let id_focus = elt.id();
+        let id = id_focus.split('-').last()?;
+        let parse = id.parse();
+        if let Ok(id) = parse {
+            Some(id)
+        } else {
+            None
+        }
     } else {
-        false
+        None
     }
 }
 
